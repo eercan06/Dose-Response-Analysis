@@ -1,0 +1,53 @@
+install.packages("ggplot2")
+install.packages("drc")
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(drc)
+
+# Define doses and responses
+doses <- c(0, value1, value2, value3, value4, value5, value6)
+response_24h_replicates <- data.frame(Dose = doses,
+  Rep1 = c(value7, value8, value9, value10, value11, value12, value13),
+  Rep2 = c(value14, value15, value16, value17, value18, value19, value20),
+  Rep3 = c(value21, value22, value23, value24, value25, value26, value27))
+response_48h_replicates <- data.frame(Dose = doses,
+  Rep1 = c(value28, value29, value30, value31, value32, value33, value34),
+  Rep2 = c(value35, value36, value37, value38, value39, value40, value41),
+  Rep3 = c(value42, value43, value44, value45, value46, value47, value48))
+
+# Transform to long format
+response_24h_long <- response_24h_replicates %>% 
+  pivot_longer(-Dose, names_to = "Repeat", values_to = "Viability") %>% 
+  mutate(Time = "24 Hours")
+response_48h_long <- response_48h_replicates %>% 
+  pivot_longer(-Dose, names_to = "Repeat", values_to = "Viability") %>% 
+  mutate(Time = "48 Hours")
+
+# Combine and summarize
+combined_data <- rbind(response_24h_long, response_48h_long)
+summary_data <- combined_data %>% 
+  group_by(Dose, Time) %>% 
+  summarize(Mean = mean(Viability), SE = sd(Viability) / sqrt(n()), .groups = "drop")
+
+ggplot(summary_data, aes(x = Dose, y = Mean, color = Time, shape = Time)) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2) +
+  scale_x_log10() +
+  labs(
+    x = "Dose (µM)", 
+    y = "Viability (%)", 
+    title = "Dose-Response of Drug1 on Cancer Cell Line 1") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("24 Hours" = "blue", "48 Hours" = "red")) +
+  scale_shape_manual(values = c(16, 17))
+
+# Fit model (example for 24h data)
+model <- drm(Viability ~ Dose, data = response_24h_long, fct = LL.4())
+ic50_value <- ED(model, 50, interval = "delta")
+print(ic50_value)
+
+# Update titles and data:
+labs(title = "Dose-Response of Drug2 on Cancer Cell Line 2")
