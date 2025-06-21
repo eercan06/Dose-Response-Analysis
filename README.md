@@ -1,6 +1,9 @@
 # Dose-Response-Analysis
 Dose-Response Analysis of Drug1 and Drug2 on Cancer Cell Lines using RStudio
 
+## Keywords
+`#dose-response` `#Rstats` `#cancer-research` `#IC50` `#drug-discovery`
+
 # Dose-Response Analysis of Anti-Cancer Compounds
 
 This repository contains R scripts for analyzing dose-response relationships of experimental compounds on cancer cell lines. The code is designed to calculate IC50 values and generate publication-quality dose-response curves.
